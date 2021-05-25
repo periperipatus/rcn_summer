@@ -20,17 +20,17 @@ There are some questions embedded in the exercises. Please
 
 * [How To](#how-to)
 	* [Things to remember:](#things-to-remember)
-* [1. Introduction to Unix](#introduction-to-unix)
+* [Introduction to Unix](#introduction-to-unix)
 	* [Directories &amp; some basic unix terminology.](#directories--some-basic-unix-terminology)
-	* [Jobs](#1.2-jobs)
-	* [Doing things with files](#1.3-doing-things-with-files)
-	* [Files and Fasta files](#1.4-files-and-fasta-files)
-	* [File Manipulation](#1.5-file-manipulation)
-* [2. Aliases](#2.-aliases)
-* [3. Variables](#3.-variables)
-* [4. Shell Scripts](#4.-shell-scripts)
-* [5. nohup](#5.-nohup)
-* [6. For Loops](#6.-for-loops)
+	* [Jobs](#jobs)
+	* [Doing things with files](#doing-things-with-files)
+	* [Files and Fasta files](#files-and-fasta-files)
+	* [File Manipulation](#file-manipulation)
+* [Aliases](#aliases)
+* [Variables](#variables)
+* [Shell Scripts](#shell-scripts)
+* [nohup](#nohup)
+* [For Loops](#for-loops)
 
 
 ## How To
@@ -52,7 +52,7 @@ If you are on Mac you'll just need to open your ```Terminal```
 * You can use ```tab``` to auto-complete names that are already in the system (This is useful for long filenames!)
 * If you get stuck, Software Carpentry offers a neat [reference](https://swcarpentry.github.io/shell-novice/reference) for some basic unix commands. 
 
-## 1. Introduction to Unix
+## Introduction to Unix
 
 Open your Mac Terminal or Linux WSL on Windows.
 
@@ -65,7 +65,7 @@ ssh ngsclass@<IP.ADDRESS>
 You will be prompted for a password, type it in and click enter.
 
 
-### 1.1 Directories & some basic unix terminology.
+### Directories & some basic unix terminology.
 
 #### 1.1.1 pwd
 
@@ -143,7 +143,7 @@ man ls
 </div>
 <br/>
 
-### 1.2 Jobs 
+### Jobs 
 
 Let’s run the sleep program on the server.  It will put the computer to sleep for a designated number of seconds
 
@@ -196,7 +196,7 @@ Now, let's play with some genome data.
 </div>
 <br/>
 
-### 1.3 Doing things with files
+### Doing things with files
 
 First, make sure you're in the directory with your name on it that we made at the beginning of the tutorial. 
 
@@ -283,7 +283,7 @@ Note that if you already have content in a file and you try to use ```>``` you w
 </div>
 <br/>
 
-### 1.4 Files and Fasta Files
+### Files and Fasta Files
 
 Let's do some more basic commands using some genome data. We can download a .zip file that has been pre-prepared using ```wget``` or ```curl```
 
@@ -368,7 +368,7 @@ grep -v ">" chr1.fna | wc -c
 </div>
 <br/>
 
-### 1.5 File Manipulation
+### File Manipulation
 
 #### Find and Replace
 
@@ -495,7 +495,7 @@ The counterpart of the `cut` command is the `paste` command which can be used to
 </div>
 <br/>
 
-## 2. Aliases
+## Aliases
 some content from [here](https://shapeshed.com/unix-alias/)
 So, you think typing `ls -l` all the time is annoying? Think that you can't be trusted with a naked `rm`?
 
@@ -544,7 +544,7 @@ Now, to update your current shell with the new alias run ```source .bash_profile
 <br/>
 
 
-## 3. Variables
+## Variables
 
 Sometimes we might want to set a **Variable**, which could be any character string, such as a filename, a random string of letters and numbers. These are held in the session and can be called upon later. Just like in R!
 
@@ -579,7 +579,7 @@ When you're setting a directory as a variable, make sure you don't end with `/`.
 </div>
 <br/>
 
-## 4. Shell Scripts
+## Shell Scripts
 
 You can run a series of commands at once using a **shell script**. This is basically a text file that contains a bunch of shell comands that will be executed at once.
 
@@ -623,7 +623,7 @@ Usually if you use `sh` the Linux operating system should point to its preferred
 </div>
 <br/>
 
-## 5. Nohup
+## Nohup
 
 Another cool trick is to set a command so that it will execute even if the terminal window (shell) isn't open anymore. For this, you can use `nohup`
 
@@ -654,7 +654,7 @@ Because these commands are sequential - you cannot run one without having the ou
 </div>
 <br/>
 
-## 6. For-loops
+## For-loops
 
 You should remember the basic idea of for loops from yesterday's tutorial on control structures in R.
 Basically, for *each* iteam in a list, do a thing.
