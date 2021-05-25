@@ -20,7 +20,7 @@ There are some questions embedded in the exercises. Please
 
 * [How To](#how-to)
 	* [Things to remember:](#things-to-remember)
-* [Introduction to Unix](#introduction-to-unix)
+* [Introduction to Unix Tutorial](#introduction-to-unix-tutorial)
 	* [Directories &amp; some basic unix terminology.](#directories--some-basic-unix-terminology)
 	* [Jobs](#jobs)
 	* [Doing things with files](#doing-things-with-files)
@@ -52,7 +52,7 @@ If you are on Mac you'll just need to open your ```Terminal```
 * You can use ```tab``` to auto-complete names that are already in the system (This is useful for long filenames!)
 * If you get stuck, Software Carpentry offers a neat [reference](https://swcarpentry.github.io/shell-novice/reference) for some basic unix commands. 
 
-## Introduction to Unix
+## Introduction to Unix Tutorial
 
 Open your Mac Terminal or Linux WSL on Windows.
 
