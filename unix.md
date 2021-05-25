@@ -21,7 +21,7 @@ There are some questions embedded in the exercises. Please
 * [How To](#how-to)
 	* [Things to remember:](#things-to-remember)
 * [1. Introduction to Unix](#introduction-to-unix)
-	* [Directories &amp; some basic unix terminology.](#1.1-directories--some-basic-unix-terminology)
+	* [Directories &amp; some basic unix terminology.](#directories--some-basic-unix-terminology)
 	* [Jobs](#1.2-jobs)
 	* [Doing things with files](#1.3-doing-things-with-files)
 	* [Files and Fasta files](#1.4-files-and-fasta-files)
