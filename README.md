@@ -7,7 +7,7 @@ The tutorial activities are included above as markdown ```.md``` files that shou
 
 Please ensure the following programs are installed on your desktop **prior to commencing the class**. 
 
-* Cisco AnyConnect VPN https://ecu.teamdynamix.com/TDClient/1409/Portal/Requests/ServiceDet?ID=11945. Connect using the url remoteaccess.ecu.edu and enter your pirateID and password. 
+* Cisco AnyConnect VPN https://ecu.teamdynamix.com/TDClient/1409/Portal/Requests/ServiceDet?ID=11945. To download go to https://remoteaccess.ecu.edu and enter your pirateID and password. Then download the VPN. Use this same URL for when logging in using AnyConnect.
 * Decent text editor software, such as [TextWrangler/BBEdit](https://www.barebones.com/products/textwrangler/) (for Mac) or [Notepad++](https://notepad-plus-plus.org/downloads/) (for Windows).
 * Slack https://slack.com/ You can use this on the web browser, OR you can download it. The majority of course communications will be through Slack.
 
