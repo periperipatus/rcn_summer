@@ -12,7 +12,8 @@ There are some questions embedded in the exercises. Please
 * Understand unix commandline terminology
 * Understand and execute basic file and text manipulation
 * Perform basic code troubleshooting
-* 
+* Use aliases and variables
+* write and execute shell scripts
 * Ability to write basic loops
 
 # Table of Contents
