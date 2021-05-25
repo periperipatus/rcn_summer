@@ -16,6 +16,13 @@ There are some questions embedded in the exercises. Please
 * write and execute shell scripts
 * Ability to write basic loops
 
+# Schedule
+
+The first lesson will be part lecture (Wednesday 1100 EDT/0800 PDT), part interactive session that will orient you to the unix shell ([Directories &amp; some basic unix terminology.](#directories--some-basic-unix-terminology))
+In your own time you will work through the remainder of the workshop, using the Slack Channel to ask questions. 
+Then we will reconvene to go over the answers to the tutorial questions, as well as combat any additional questions you may have. (Thursday 1600 EDT/1300 PDT)
+
+
 # Table of Contents
 
 * [How To](#how-to)
