@@ -459,7 +459,7 @@ Often it will be necessary to extract a subset of columns from a BED file to pro
 cut -f 4 cancer_genes.bed > genes.txt
 ```
 
-**Question 10:** Think back to our lesson yesterday, how might you achieve this in R?
+**Question 10:** Think back to your R knowledge, how might you achieve this in R?
 
 **On Your Own** Examine the first lines of the `genes.txt`, to confirm that the 4th column was extracted.
 
