@@ -188,7 +188,7 @@ Another useful command is `htop`. Not all servers have this installed, but it ca
 
 `htop` is a live updated and interactive system-monitor and process manager. You can see what other users are doing on there, and how many cores are available, and how much RAM. This is useful for when the server is busy, and you can also use it to extract your PIDs and kill jobs. [Here's](https://linuxtogether.org/htop-command-explanation/) a basic intro to what `htop` shows.
 
-**Question 2:** How many cores does this server have? How much total RAM is there? 
+**Question 2:** How many CPUs does this server have? How much total RAM is there? 
 
 
 
