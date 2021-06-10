@@ -400,7 +400,7 @@ The `sed` command is more powerful than `tr` because it uses *‘regular express
 sed 's/A//g' ZF_SNCA_cDNA.fa
 ```
 
-**Question 9:** How would you use a *regular expression* pattern to replace all lines starting in A with an underscore character in the 'ZF_SNCA_cDNA.fa' file? Don't be afraid to google!
+**Question 9:** How would you use a *regular expression* pattern to replace all instances of A at the beginning of the line with an underscore '_' in the 'ZF_SNCA_cDNA.fa' file? Don't be afraid to google!
 
 <br/>
 <div align="right">
@@ -459,7 +459,7 @@ Often it will be necessary to extract a subset of columns from a BED file to pro
 cut -f 4 cancer_genes.bed > genes.txt
 ```
 
-**Question 10:** Think back to our lesson yesterday, how might you achieve this in R?
+**Question 10:** Think back to your R knowledge, how might you subset out the 4th column in R?
 
 **On Your Own** Examine the first lines of the `genes.txt`, to confirm that the 4th column was extracted.
 
