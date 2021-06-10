@@ -34,14 +34,25 @@ Note that the standard tblastn results headers are:
 
 2. Find the coordinates of your best hits, and exclude overlapping results. 
 I used the R code in the file in this github directory called `parsing_BLAST_OPN3.R` to extract the results and make a .bed file. This file is derived from the [Otter Genome Project](https://github.com/LohmuellerLab/OtterGenomeProject/tree/master/MolecularEvolution/olfactionAnalyses/FunctionalOlfactoryReceptorGene_Analysis/ferret_ORGs/mfur/step_1_c_CleanedByEvalue_ABScript)
+This can be run remotely in Unix like so:
+
+```bash
+nohup R CMD BATCH parsing_BLAST_OPN3.R
+```
+
 For OPN3 results, the output was very simple and a bed file could be made manually by viewing s.start and s.end on the results and making a file that meets [.bed specifications](https://genome.ucsc.edu/FAQ/FAQformat.html#format1)
+
 
 3. Use the coordinates from the bed file to extract your sequences into a fasta file. 
 
 ```bash
 REFERENCE=GCA_014839755.1_bSylBor1.pri_genomic.fna
 spp="SYBO"
-bedfile=${spp}_OPN3_Hits.bed
-bedtools getfasta -s -name -bed $bedfile -fi $REFERENCE -fo ${spp}_OPN3_sequences.fasta
+gene="OPN3"
+bedfile=${spp}_${gene}_Hits.bed
+bedtools getfasta -s -name -bed $bedfile -fi $REFERENCE -fo ${spp}_${gene}_sequences.fasta
 ```
-Now, order your results by the start coordinates and make it into a single entry and single line fasta file (text editor is ok).
+Now, make sure your multi-fasta file is in the right order (largest numbers per chrom/scaff first if on `-` strand)  make it into a single entry and single line fasta file (text editor is ok). 
+
+
+

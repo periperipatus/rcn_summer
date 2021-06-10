@@ -1,4 +1,4 @@
-setwd("C:/Users/perif/OneDrive - East Carolina University/BALALAB_SHARED/RCN Mentoring/Tutorials/Alignments/OPN3")
+setwd("C:/Users/perif/OneDrive - East Carolina University/BALALAB_SHARED/RCN Mentoring/Public/Comparative genomics/2_BLAST_genome/")
 #this code is heavily based on the code from the Otter Genomes Project https://github.com/LohmuellerLab/OtterGenomeProject 
 # specifically this code: https://github.com/LohmuellerLab/OtterGenomeProject/blob/master/MolecularEvolution/olfactionAnalyses/FunctionalOlfactoryReceptorGene_Analysis/ferret_ORGs/mfur/step_1_c_CleanedByEvalue_ABScript/Step_1_c_CleanByEvaluePrune_Annabel.mfur.R
 blast_results<- read.csv("C1KXAEZK01R-Alignment-HitTable.csv")
@@ -69,5 +69,6 @@ pullOut$bed_HitStart0 <- pullOut$s.start - 1 # change the start site because bed
 # $species\_$chr\_$start\_$end\_$string\ *** NOTE THAT BLAST IS ONE BASED *** so start end are 1 based
 pullOut$bedname <- paste("SYBO",pullOut$subjectacc.ver,pullOut$s.start,pullOut$s.end,pullOut$subjectframes,sep="_")
 bed <- pullOut[,c("subjectacc.ver","bed_HitStart0","s.end","bedname","evalue","strand")]
-bed<-bed[order(bed$bed_HitStart0),]
+bed<-bed[order(bed$bed_HitStart0,decreasing = TRUE),] #put in DECREASING order by start site because this is on the REVERSE strand. 
+
 write.table(bed,"SYBO_OPN3_Hits.bed",row.names = F,col.names = F,quote=F,sep="\t")

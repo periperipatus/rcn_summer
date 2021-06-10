@@ -23,6 +23,7 @@
 * Did you have any trouble finding sequences for your species? Were they all complete sequences?
 * Present your original alignment, and describe what sequence alignment method you used.
 * Present your final alignment and describe your quality control procedure.
+* Describe the results from the BLAST experiment on the unannotated genome. How well did it align? What sort of trimming did you do?
 * What are the next steps from your alignments today in terms of your research specifically?
 
 

@@ -33,7 +33,7 @@ Here are the list of genes you will work on.
 * TAP1 - Elsie
 * AR - Camilo
 * CIITA - Emily
-* MYH3 - Diego
+* TH (Tyrosine Hydroxylase) - Diego
 
 
 
