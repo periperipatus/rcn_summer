@@ -1,9 +1,9 @@
 # BLAST a genome
 
 ## Learning objectives
-* Conduct a BLAST search on a genome assembly
+* Conduct a BLAST search on a genome assembly using the webservice and the commandline interface
 * Understand .bed format
-* 
+* Use file-format documentation
 * Extract sequences from a genome using coordinates.
 
 
@@ -20,7 +20,10 @@ The `makeblastdb` takes forever, there is no need to do this component today. Yo
 nohup makeblastdb -in GCA_014839755.1_bSylBor1.pri_genomic.fna -parse_seqids -hash_index -dbtype nucl &
 nohup tblastn -evalue 1e-20 -query  -db GCA_014839755.1_bSylBor1.pri_genomic -out SYBO_results -outfmt 4 -num_alignments 200000 -num_descriptions 200000 -num_threads 20
 ```
-Note that we are only taking results with e-values below 1e-20. I also additionally decided to filter results based on a minimum exon length derived from the Zonotrichia albicollis gene model for OPN3 (minimum length 210 nt). 
+Note that we are only taking results with e-values below 1e-20. 
+
+I also additionally decided to filter results based on a minimum exon length derived from the Zonotrichia albicollis gene model for OPN3 (minimum length 210 nt). 
+
 There are multiple ways to extract out the regions of interest. You can download the individual fasta files from the web results OR you can parse your results file.
 
 If you decide to do this from the text results then you need to:
