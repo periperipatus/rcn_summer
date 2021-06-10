@@ -30,7 +30,7 @@ In this section you will be extracting some genes from NCBI using Entrez and BLA
 
 Here are the list of genes you will work on.
 
-* TAP1 - Elsie
+* TAP1 - Pearl
 * AR - Camilo
 * CIITA - Emily
 * TH (Tyrosine Hydroxylase) - Diego
