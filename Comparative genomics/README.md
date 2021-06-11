@@ -50,6 +50,10 @@ BiocManager::install("GenomicRanges")
 * Homology types: https://useast.ensembl.org/info/genome/compara/homology_types.html
 * NLM (2016) Webinar: Retrieving Exon and coding sequences 28 minutes. (https://www.youtube.com/watch?v=Xac7anudTD0)
 	This webinar includes how to use NCBI commandline tools to do Entrez searches NOT covered in this tutorial.
-* Selecting things in the genome data viewer (https://www.youtube.com/watch?v=EVNABwOCt_s)
+* NCBI Webinar: [Selecting things in the genome data viewer](https://www.youtube.com/watch?v=EVNABwOCt_s)
 * Nichio et al (2017) New Tools in Orthology Analysis: A Brief Review of Promising Perspectives. Frontiers in Genetics 8: 165
 * Vallender (2009) Bioinformatic approaches to identifying orthologs and assessing evolutionary relationships. Methods 49: 50-55
+* Pais et al (2014) Assessing the efficiency of multiple sequence alignment programs. Algorithms for molecular biology 9: 4 
+* Oregon State Applied Bioinformatics. [Chapter 4 Multiple Sequence Alignments, Molecular Evolution, and Phylogenetics](https://open.oregonstate.education/appliedbioinformatics/chapter/chapter-4/)
+* EBI hosts all the major alignment algorithms [here](https://www.ebi.ac.uk/Tools/msa/)
+* [Geneious help page for different multiple alignment algorithms](https://help.geneious.com/hc/en-us/articles/360044627712-Which-multiple-alignment-algorithm-should-I-use-)

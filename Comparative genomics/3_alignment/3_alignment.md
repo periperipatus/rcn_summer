@@ -12,12 +12,11 @@ In order to conduct analyses of dN/dS and infer selection, we need to ensure tha
 This is the online component of a mostly lecture based tutorial. Please refer to lecture recording for more information. 
 
 There are multiple tools that can conduct codon-aware alignment, some of these include:
-* MEGA (can also edit alignments)
-* [translatorX](http://translatorx.co.uk/)
-* PRANK
-* [PAL2NAL](http://www.bork.embl.de/pal2nal/)
+* MEGA (can also edit alignments) - can CLUSTAL and MUSCLE align.
+* [translatorX](http://translatorx.co.uk/) - all common algoritms.
 * [Guidance2](http://guidance.tau.ac.il/) program provides codon-aware alignment, as well as automated quality scores for sequences, sites and individual residues.
-
+* [PRANK](https://www.ebi.ac.uk/goldman-srv/webprank/)
+* [PAL2NAL](http://www.bork.embl.de/pal2nal/)
 Some of these programs are unique algorithms for alignment (e.g. PRANK), others allow you to produce alignments using common alignment methods e.g. MAFFT, MUSCLE, ClustalW, PRANK, T-coffee.
 We like MAFFT and MUSCLE. MAFFT tends to be better for sequences with lower homology, or sequences with long gaps, and can handle ~30k sequences. 
 We will use MEGA today because it also allows alignment editing. You can also use MAFFT in a program like [GUIDANCE](http://guidance.tau.ac.il/) or [translatorX](http://translatorx.co.uk/) and import the .fasta file into MEGA (or another sequence editor) for viewing and editing. 
@@ -35,7 +34,7 @@ From today's tutorial you will:
 * Trim to the nearest codon on 3' end
 * Check it's in the same reading frame as when you downloaded it! (shared start codon) 
 * USER DISCRETION: Delete or mask sequences that are indels, poorly aligned or  highly divergent regions if they do not appear to be biologically real
-* USER DISCRETION: It may be necessary to delete a species from an alignment if the sequence cannot be aligned. 
+* USER DISCRETION: It may be necessary to delete a species' sequence from an alignment if the sequence cannot be aligned. 
 
 
 # Discussion Prompts (Tuesday)
