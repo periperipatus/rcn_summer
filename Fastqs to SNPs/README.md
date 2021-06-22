@@ -5,7 +5,8 @@ Some tutorials on:
 * mapping to a reference genome
 * SNP calling and filtering
 
-Recommended software for desktop
+## Recommended software for desktop
+
 *[IGV](https://software.broadinstitute.org/software/igv/download)
 
 

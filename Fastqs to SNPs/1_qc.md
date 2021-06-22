@@ -7,7 +7,7 @@ This tutorial was conceived by Chris Balakrishnan and further modified by Peri B
 * [Files Preparation](#files-preparation)
 * [FastQC](#fastqc)
 * [Quality Trimming](#quality-trimming)
-* [Compare with results from resequencing data](#compare-with-results-from-resequencing-data]
+* [Compare with results from resequencing data](#compare-with-results-from-resequencing-data)
 * [QC resources](#qc-resources)
 
 # Learning Objectives
@@ -158,7 +158,7 @@ DO NOT RUN the above code: these files are large and take forever to download (4
 Now, make a subsample of that file in your directory.
 ```bash
 seqtk sample -s42 ERR1013179_1.fastq.gz 0.1 > <YOUR DIR>/ERR1013179_1_subs.fastq
-seqtk sample -s42 ERR1013179_2.fastq.gz 0.1 > <YOUR DIR>/ERR1013179_2_subs.fastq
+seqtk sample -s42 ERR1013179_2.fastq.gz 0.1 > <YOUR DIR>/ERR1013179_2_subs.fastq 
 ``` 
 **Question 12:** What is the difference between the subsampling procedure using ```seqtk``` here and the one using ```head``` above?
 
@@ -166,6 +166,12 @@ seqtk sample -s42 ERR1013179_2.fastq.gz 0.1 > <YOUR DIR>/ERR1013179_2_subs.fastq
 
 **Question 13:** Observe any differences in the fastqc results between the resequencing (Zebra finch) and the RNA-seq data (Manacus).
 
+
+<br/>
+<div align="right">
+    <b><a href="#table-of-contents">^ back to TOC</a></b>
+</div>
+<br/>
 
 # QC resources
 
