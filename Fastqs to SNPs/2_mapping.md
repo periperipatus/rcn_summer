@@ -27,23 +27,32 @@ nohup bwa index GCF_003957565.2_bTaeGut1.4.pri_genomic.fna &
 ``` 
 No need to conduct this step. It takes a long time to create the index for bwa. Just go to the directory and look at the extra files created by the indexing process. They all have the same file name stem, but a different extension. 
 
-Now we are going to map some subsampled reads from the second part of the QC tutorial back to the genome. 
+Now we are going to map some subsampled reads that I made. The subsample we are using today is smaller than the subsamples we made yesterday because my test run on the 10% subsample was VERY slow. 
+(I used the method for the manakins, by taking the first 40k lines). 
+
+Before you start, make sure you've got a new folder in your directory called alignments
+```bash
+mkdir ~/<YOURDIR>/alignments/
+```
 
 ```bash
 REF=/home/ngsclass/Bioinformatics_Workshop/zf_genome/GCF_003957565.2_bTaeGut1.4.pri_genomic.fna
-bwa mem $REF <YOUR DIR>/ERR1013179_1_subs.fastq <YOUR DIR>/ERR1013179_2_subs.fastq > ERR1013179.sam
+FASTQS=/home/ngsclass/Bioinformatics_Workshop/zf_reads/subs
+bwa mem $REF $FASTQS/ERR1013179_1_subs_val_1.fq $FASTQS/ERR1013179_2_subs_val_2.fq > <YOURDIR>/alignments/ERR1013179.sam & 
 
 less -S ERR1013179.sam
 ```
+
+**Question 1.1:** Use your Unix loop writing skills to align all the subsampled fastq files in that directory. Share with the group. 
 
 Recall our lecture that went through the SAM file specifications. 
 Now we want to convert that SAM file into a BAM file which is a binary format that saves a lot of space. 
 
 ```bash
-samtools view -b -S  -o ERR1013179.bam ERR1013179.sam
+samtools view -b -S -o ERR1013179.bam ERR1013179.sam
 ```
 
-**Question 1.1:** What do the -b and -S arguments mean?
+**Question 1.2:** What do the -b and -S arguments mean?
 
 Now, let's look at the BAM... 
 
@@ -68,15 +77,15 @@ For example the flag 0x4 (or 4) indicates unmapped reads.
 samtools view -c -f 4 ERR1013179.bam
 ```
 
-**Question 1.2:** How many reads are unmapped? What does the `-c` argument do?
+**Question 1.3:** How many reads are unmapped? What does the `-c` argument do?
 
 ```bash
 samtools view -c -q 42 ERR1013179.bam
 ```
 
-**Question 1.3:** How many reads are aligned with a quality of 42 (max quality score from bwa)?
+**Question 1.4:** How many reads are aligned with a quality of 42 (max quality score from bwa)?
 
-**Question 1.4:** Consider how you might use these functions to filter out low quality alignments.
+**Question 1.5:** Consider how you might use these functions to filter out low quality alignments.
 
 <br/>
 <div align="right">
@@ -92,19 +101,38 @@ For some applications, such as SNP calling, sam files have to be sorted by genom
 samtools sort -o ERR1013179.bam.sorted ERR1013179.bam
 ```
 
+If you have a library that was made with PCR, then its a good idea to mark PCR duplicates (the exact same fragment amplified multiply), so they can be easily ignored by downstream processes. Here, we will use the `java` program `PicardTools`
+VALIDATION_STRINGENCY is set to SILENT as PicardTools documentation suggests it improves performance when you have variable length read data.
+```bash
+java -Xmx8G -jar ~/programs/picard.jar MarkDuplicates \
+INPUT=ERR1013179.bam.sorted \
+OUTPUT=ERR1013179_sorted_marked.bam \
+METRICS_FILE=ERR1013179_metrics.txt \
+ASSUME_SORT_ORDER=coordinate \
+VALIDATION_STRINGENCY=SILENT
+```
+
+
 Like genomes, BAM and SAM files can be indexed also, and is required by many downstream applications. 
 This command will create another file with the same name with a `.bai` appended to the end. It is important that these file names have the same prefix (everything before .bai) otherwise programs that require an indexed BAM wont know where to look.
 
 ```bash
-samtools index ERR1013179.bam.sorted
+samtools index ERR1013179_sorted_marked.bam
 ```
 
 Sorted and Indexed files are required for viewing the alignment in IGV. The sorted and indexed alignment can also be viewed in the CLI using the following command:
 
 
 ```bash
-samtools tview ERR1013179.bam.sorted GCF_003957565.2_bTaeGut1.4.pri_genomic.fna
+REF=/home/ngsclass/Bioinformatics_Workshop/zf_genome/GCF_003957565.2_bTaeGut1.4.pri_genomic.fna
+
+samtools tview -p NC_054767.1:477814 ERR1013179_sorted_marked.bam $REF
 ```
+"." indicates matches on the forward strand, and "," indicates a match on the reverse strand. Use your arrows to navigate. 
+Underlined reads mean secondary mapping or an unpaired read... Colours represent some kind of base level quality score, but exactly what the breakdown is I don't know. Welcome to the world of bad bioinformatics documentation.
+
+What happens if you just view the alignment without the positional information?
+
 
 To view the alignment in [IGV](http://software.broadinstitute.org/software/igv/alignmentdata) you will need to first create an `.fai` index of the genome in samtools. 
 
@@ -116,6 +144,7 @@ samtools faidx GCF_003957565.2_bTaeGut1.4.pri_genomic.fna
 
 Then you will need to download the reference `fasta` file, its samtools index, and the sorted bam file and its index to your desktop, load it into IGV and explore. 
 
+
 ## Alignment QC
 
 Now, let's use `qualimap` to have a look at our alignment. 
@@ -126,18 +155,22 @@ Let's make a new directory for our quality reports and then run the program.
 mkdir qc
 
 qualimap bamqc \
--outdir qc/7_MAVI_SH_JB1_F_quali \
--a proportional \
--bam 7_MAVI_SH_JB1Aligned.sortedByCoord.out.bam \
--p strand-specific-reverse \
--gtf ~/Bioinformatics_Workshop/mavi_genome/GCF_001715985.3_ASM171598v3_genomic.gtf \
+-outdir qc/ERR1013179 \
+-bam ERR1013179_sorted_marked.bam \
 --java-mem-size=8G
 ```
+
+**Question 1.6:** What do the \ do in the code?
+
 Download the all the results to your desktop to view. This time you need to download the whole folder.
 
 ```bash
-scp -r -P 1200 ngsclass@<IP.ADRESS>:~/<YOURDIR>/alignments/qc/7_MAVI_SH_JB1_F_quali/ .
-``
+scp -r -P 1200 ngsclass@<IP.ADRESS>:~/<YOURDIR>/alignments/qc/ERR1013179/ .
+```
+Open up the results in 
+
+**Question 1.7:** What do you notice about the alignments?
+
 
 <br/>
 <div align="right">
@@ -153,7 +186,7 @@ Some commonly used splice-aware aligners are [STAR](https://github.com/alexdobin
 Here we are going to use STAR (Spliced Transcripts Alignment to a Reference) to map our *Manacus* reads to the reference genome (Yes, I lied above, we have a genome assembly). 
 
 
-Just like ```kallisto```, the ```STAR``` aligner needs to make a genome index so that it can efficiently access the genome. 
+Just like ```bwa```, the ```STAR``` aligner needs to make a genome index so that it can efficiently access the genome. 
 However, STAR is a little slow at doing the index. So genome index has already been made for you here ```~/Bioinformatics_Workshop/mavi_genome```
 
 Here's the code used to arrive at this point. 
@@ -179,29 +212,25 @@ STAR --runThreadN 50 \
 #this took about 20 min
 ```
 
-When running 
 
-**Question 2.1:** If you wanted to download the transcripts for a transcriptome based quantification (like with Kallisto) which file would you download from the [GenBank RefSeq Assembly](https://www.ncbi.nlm.nih.gov/assembly/GCF_001715985.3)?
+**Question 2.1:** What does the ```--sjdbOverhang``` argument do?
 
-**Question 2.2:** What does the ```--sjdbOverhang``` argument do?
 
-**Question 2.3:** What do the \ do in the code?
 
-Now, you can run one of the trimmed fastqs from before.
+Now, you can run one of the trimmed fastqs from before. 
 
 ```bash
-mkdir ~/<YOURDIR>/alignments/
 
 STAR --genomeDir ~/Bioinformatics_Workshop/mavi_genome/mavi_index/ \
 --runThreadN 6 \
---readFilesIn 7_MAVI_SH_JB1_F_val_1.fq 7_MAVI_SH_JB1_R_val_2.fq \
+--readFilesIn <YOURDIR>/<SUBDIR>/7_MAVI_SH_JB1_F_val_1.fq 7_MAVI_SH_JB1_R_val_2.fq \
 --outFileNamePrefix ../alignments/7_MAVI_SH_JB1 \
 --outSAMtype BAM SortedByCoordinate \
 --outSAMattributes Standard \
 --quantMode GeneCounts &
 ```
 
-**Question 2.4:** What do the different arguments do in this? refer to the STAR manual
+**Question 2.2:** What do the different arguments do in this? refer to the STAR manual
 
 
 Now, let's move into our ```alignments/``` folder and look at what we've produced. There should be a number of files there including those ending in ```Aligned.sortedByCoord.out.bam```, ```Log.final.out``` and ```PerGene.out.tab```
@@ -214,12 +243,13 @@ samtools view 7_MAVI_SH_JB1Aligned.sortedByCoord.out.bam | head
 ```
 This command shows the first few lines of the alignment section of the file. if you want to view the header you need to use the ```-h``` flag.
 
-**Question 2.5:** What do the first 5 columns of the alignment tell you?
+**Question 2.3:** What do the first 5 columns of the alignment tell you?
 
 Now, let's open the ```Log.final.out``` file. 
 
-**Question 2.6:** What is the percent of unmapped, multi-mapped and uniquely mapped reads? What could affect these numbers?
-**Question 2.7:** What is the Number of splices? What does this mean?
+**Question 2.4:** What is the percent of unmapped, multi-mapped and uniquely mapped reads? What could affect these numbers?
+
+**Question 2.5:** What is the Number of splices? What does this mean?
 
 Now let's have a look at the contents of  ```ReadsPerGene.out.tab```
 
@@ -227,13 +257,10 @@ Now let's have a look at the contents of  ```ReadsPerGene.out.tab```
 less -S 7_MAVI_SH_JB1ReadsPerGene.out.tab
 ```
 
-hit ```q``` to exit.
 
-**Question 2.8:** What does this file tell us? What do the three columns mean?
+**Question 2.6:** What does this file tell us? What do the three columns mean?
 
-Don't worry that there are a lot of zeros - don't forget you're using a truncated fastq file. The differential expression example tomorrow we will use a full dataset. 
-
-**Question 2.9:** Other aligners, such as ```HISAT2``` do not provide any counts for reads against the gene models in the reference. How would you go about getting these counts?
+Don't worry that there are a lot of zeros - don't forget you're using a truncated fastq file.  
 
 <br/>
 <div align="right">
