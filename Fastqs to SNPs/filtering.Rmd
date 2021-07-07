@@ -1,0 +1,137 @@
+---
+title: "Filtering Tutorial"
+author: "Peri Bolton"
+date: "07/07/2021"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+```
+
+This file was produced by *samtools mpileup*. Some of the VCF INFO fields are a little different. 
+
+First let's get a handle on our raw data.
+
+```{bash}
+VCF=bluebird_master_v1.vcf
+name=${VCF%%.*}
+bcftools stats $VCF > filtering_stats/$name.stats.tab
+less -S $name.stats.tab
+```
+
+**Question 1:** How many records do we have? How many of these are SNPs? How many are multi-allelic? How many are Indels?
+
+#Filtering first round.
+
+GATK recommends a bunch of minimum filters [here](https://gatk.broadinstitute.org/hc/en-us/articles/360035890471-Hard-filtering-germline-short-variants), however because the SNPs weren't called in GATK we are going to only filter on the two criteria we have in the `mpileup` derived vcf file. 
+
+```{bash}
+conda activate gatk
+
+VCF=bluebird_master_v1.vcf
+
+nohup gatk --java-options "-Xmx12g" VariantFiltration \
+    -V $VCF \
+    -filter "QUAL < 30.0" --filter-name "QUAL30" \ 
+    -filter "MQ < 30.0" --filter-name "MQ30" \
+    -O bluebird_filtered.qmq30.vcf.gz &
+```
+
+Here I have lowered MQ from the recommended 40 to 30.
+
+**Question 2:** What is the MQ value in the vcf file? What is the QUAL?
+
+Now that's done let's have a look at some basic stats that we can use to look at where we should deploy more filtering cut offs.
+
+## Depth
+
+Minimum and maximum depth filters are important because we want to have a certain number of reads that support a given genotype call. We also want to make sure that we are not sampling poorly assembled, repetitive regions of the genome in keeping genotypes that have extremely high sequencing depth. 
+
+the tool *vcftools* offers two ways to measure depth. 
+  --depth is the mean depth per individual. 
+  --site-mean-depth is the mean depth per site across all individuals. 
+
+```{bash}
+VCF=bluebird_filtered.qmq30.vcf.gz
+name=${VCF%%.*}
+vcftools --gzvcf $VCF --depth --out filtering_stats/$name
+vcftools --gzvcf $VCF --site-mean-depth --out filtering_stats/$name
+```
+
+
+## Missing Data
+
+Need to set some thresholds about how much missing data is along the VCF in a given individual (--missing-indv), and what percent of individuals per site are missing (--missing-site).
+
+```{bash}
+vcftools --gzvcf $VCF --missing-indv --out filtering_stats/$name
+vcftools --gzvcf $VCF --missing-site --out filtering_stats/$name
+```
+
+
+## heterozygosity
+
+```{bash}
+vcftools --gzvcf $VCF --het --out filtering_stats/$name
+```
+
+We want to get a feel for heterozygosity across the genome of each individual. Strongly outlying individuals in F-index may indicate a problem with that individual in terms of sequencing. 
+
+## Allele frequency
+
+Allele frequency filtering is contentious, but low frequency variants may be the result of sequencing error and thus many researchers exclude these. To get a handle on these we will look at the frequency distribution at only biallelic sites (multi-allelic sites are often not supported).
+
+```{bash}
+vcftools --gzvcf $VCF --freq2 --out filtering_stats/$name --max-alleles 2
+```
+
+
+```{r}
+library(ggplot2)
+library(ggpubr)
+
+name="bluebird_master_v1"
+bb_raw<- read.table(file.path("filtering_stats",paste0(name,".var.tab")))
+bb_raw_depth<- read.table(paste0(name,""))
+
+
+```
+
+**Question 2:** Where do you think you would put the filtering cut offs? Why?
+
+# Round 2
+
+Let's execute the filter.
+
+```{bash}
+
+--minDP 5 
+--min-meanDP #15
+--max-meanDP x
+--max-alleles 2
+```
+
+**Question 2:** How has this changed the profile of missing data now that the the above filtering step has been conducted?
+
+
+```{bash}
+vcftools --vcf $VCF --missing-indv --out filtering_stats/$name
+vcftools --vcf $VCF --missing-site --out filtering_stats/$name
+
+vcftools --vcf $VCF --het --out filtering_stats/$name
+vcftools --vcf $VCF --freq2 --out filtering_stats/$name --max-alleles 2
+```
+
+
+# References: 
+
+* O'Leary et al (2018) These aren’t the loci you’e looking for: Principles of effective SNP filtering for molecular ecologists. *Molecular Ecology* 27: 3193-3206
+* GATK Team (2021) [Hard-filtering germline short variants](https://gatk.broadinstitute.org/hc/en-us/articles/360035890471-Hard-filtering-germline-short-variants)
+* [VCFTools documentation](https://vcftools.github.io/man_latest.html)
+* Mark Ravinet & Joana Meier (2020) Speciation & Population Genomics: a how-to-guide: [Filtering and Handling VCFs](https://speciationgenomics.github.io/filtering_vcfs/)
+
