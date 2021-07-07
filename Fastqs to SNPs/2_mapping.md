@@ -37,7 +37,7 @@ mkdir ~/<YOURDIR>/alignments/
 
 ```bash
 REF=/home/ngsclass/Bioinformatics_Workshop/zf_genome/GCF_003957565.2_bTaeGut1.4.pri_genomic.fna
-FASTQS=/home/ngsclass/Bioinformatics_Workshop/zf_reads/subs
+FASTQS=/home/ngsclass/Bioinformatics_Workshop/zf_reads/subs_10k
 bwa mem $REF $FASTQS/ERR1013179_1_subs_val_1.fq $FASTQS/ERR1013179_2_subs_val_2.fq > <YOURDIR>/alignments/ERR1013179.sam & 
 
 less -S ERR1013179.sam
@@ -167,7 +167,7 @@ Download the all the results to your desktop to view. This time you need to down
 ```bash
 scp -r -P 1200 ngsclass@<IP.ADRESS>:~/<YOURDIR>/alignments/qc/ERR1013179/ .
 ```
-Open up the results in 
+Open up the results in your browser. 
 
 **Question 1.7:** What do you notice about the alignments?
 
@@ -180,8 +180,9 @@ Open up the results in
 
 # RNAseq mapping with STAR
 
-In yesterday's tutorial we also conducted QC on RNAseq data. If you would like to compare the results from 
-If you are working on species with a genome, you can also do splice aware mapping.
+In yesterday's tutorial we also conducted QC on RNAseq data. If you would like to compare the results from the whole-genome resequencing to RNAseq do this part of the tutorial. 
+
+If you are working on species with a genome, you can do splice aware mapping.
 Some commonly used splice-aware aligners are [STAR](https://github.com/alexdobin/STAR) and [HISAT2](http://daehwankimlab.github.io/hisat2/about/).
 Here we are going to use STAR (Spliced Transcripts Alignment to a Reference) to map our *Manacus* reads to the reference genome (Yes, I lied above, we have a genome assembly). 
 
@@ -291,7 +292,7 @@ Download the all the results to your desktop to view. This time you need to down
 scp -r -P 1200 ngsclass@<IP.ADRESS>:~/<YOURDIR>/alignments/qc/7_MAVI_SH_JB1_F_quali/ .
 ```
 
-**Question 2.10:** what does the `-r` flag do?
+**Question 2.7:** what does the `-r` flag do?
 
-**Question 2.11:** Think about the quality of the mapping. Do we have good mapping rates? Why/why not? Do we have good representation in exonic regions?
+**Question 2.8:** Think about the quality of the mapping. Do we have good mapping rates? Why/why not? Do we have good representation in exonic regions?
 
