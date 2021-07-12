@@ -20,13 +20,14 @@
 	* [Prepping Alignments](#prepping-alignments)
 	* [SNP calling](#snp-calling)
 	* [Filtering](#Filtering)
+		
 * [Useful Resources](#useful-resources)
 
 # Tutorial
 
 For today's tutorial we will start with some bam files that I have processed for input into GATK snp calling following their [germline best practices pipeline](https://gatk.broadinstitute.org/hc/en-us/articles/360035535932-Germline-short-variant-discovery-SNPs-Indels-)
 
-You do NOT need to repeat the steps until the section on GATK. HOWEVER, there ARE questions in Mapping and Prepping Alignments/ReadGroups so please review the process. 
+You do NOT need to repeat the steps until the end of the section on SNP calling, and the [FILTERING](#Filtering) section. HOWEVER, there ARE questions in Mapping and Prepping Alignments/ReadGroups throughout the tutorial so please review the code. 
 
 
 ## Pre-Processing
@@ -93,6 +94,12 @@ for b in $BAMS
 		samtools sort $b -o $sample.sorted.bam ;
 	done 
 ```
+
+<br/>
+<div align="right">
+    <b><a href="#table-of-contents">^ back to TOC</a></b>
+</div>
+<br/>
 
 ### 2. Read Groups 
 
@@ -170,7 +177,7 @@ done
 <br/>
 
 
-# SNP calling
+## SNP calling
 
 Before we do anything we need to make a sequence dictionary - another kind of index for Genome Analysis Toolkit (GATK) to access the reference info
 
@@ -222,52 +229,62 @@ for v in $VCFS; do
 done
 ```
 
-Then we will make the database. `GenomicsDBImport` requires a list of intervals that you need to call over. This can be specific intervals, or the entire genome, as listed by the scaffold names. 
-
-```bash
-grep "ID=NC\|ID=NW_" GCF_003957565.2_bTaeGut1.4.pri_genomic.gff | awk '{OFS="\t"; print $1,$4-1,$5}' > chr_scaffold.bed
-awk '{print $1}' chr_scaffold.bed > chrs.list
-```
-
-**Question 5:** This is not the most efficient way to come up with a list of scaffold names. How could you have done this more efficiently?
-
-
-```bash
-mkdir tmp
-REF=~/Bioinformatics_Workshop/zf_genome
-gatk --java-options "-Xmx12g -Xms12g" GenomicsDBImport \
-	  --sample-name-map gvcfs.sample_map \
-	  --batch-size 5 \
-      --genomicsdb-workspace-path zf_database \
-      --tmp-dir tmp \
-      --intervals $REF/chrs.list ;  # a list of chromosomes in bed format
-```
-
-Now that all the gzvcfs have been gathered into a database we can call the genotypes and combine it into a mutli-sample VCF.
-
+GATK offers two ways to combine the individual GVCFs into one for genotype calling. The first/older method is `CombineGVCFs` or using `GenomicsDBImport`. I had trouble getting DBImport to work on the server, and `CombineGVCFs` is acceptable for use in small projects like this one. 
 
 ```bash
 REF=/home/ngsclass/Bioinformatics_Workshop/zf_genome/GCF_003957565.2_bTaeGut1.4.pri_genomic.fna ;
- gatk --java-options "-Xmx12g" GenotypeGVCFs \
-  -R $REF \
-  -V gendb://zf_database \
-  -O ../zf_snps_raw.vcf.gz ; 
+INDIR=/home/ngsclass/Bolton/ZF/alignments/tmp_gvcf
+ gatk --java-options "-Xmx24g" CombineGVCFs \
+   -R $REF \
+   --variant $INDIR/ERR1013161_1_subs.g.vcf.gz  \
+   --variant $INDIR/ERR1013162_1_subs.g.vcf.gz \
+   --variant $INDIR/ERR1013163_1_subs.g.vcf.gz \
+   --variant $INDIR/ERR1013164_1_subs.g.vcf.gz \
+   --variant $INDIR/ERR1013169_1_subs.g.vcf.gz \
+   --variant $INDIR/ERR1013179_1_subs.g.vcf.gz \
+   -O ../vcf/zfs.g.vcf.gz
 ```
 
-Now, let's have a look at the raw data. 
+Then we need to assign genotypes to the individuals.
+
+```bash
+gatk --java-options "-Xmx64g" GenotypeGVCFs \
+      -R $REF \
+      -V $INDIR/zfs.g.vcf.gz \
+      -O /home/ngsclass/Bolton/ZF/vcf/zf_snps_raw.vcf.gz 
+```
+
+
+<br/>
+<div align="right">
+    <b><a href="#table-of-contents">^ back to TOC</a></b>
+</div>
+<br/>
+
+### Taking stock
+
+Now, let's have a look at the raw data. I have moved the vcf file to `~/Bioinformatics_workshop/vcfs` for you to use. 
+
+In there there is another file from a whole genome resequencing project from the McRae Lab `bluebird_subset.vcf.gz`. 
+Please copy these to your directory for the Filtering Tutorial.
 
 ```
-cd ..
-bcftools stats zf_snps_raw.vcf.gz > zf_snps_raw.stats.tab
+bcftools stats <INVCF.vcf.gz> <OUTFILE>
 ```
 
-**Question 6:** How many SNPs are there? How many Indels are there? How many multi-allelic sites?
+**Question 6:** Use the above command for both VCF files. How many SNPs are there? How many Indels are there? How many multi-allelic sites?
+
+**Question 7:**  Look at both the files in the directory. What fields are different in INFO and FORMAT? What program was used to call the genotypes for the bluebird data?
 
 # Filtering
 
-See the .Rmd in this folder for the filtering exercise. 
+See the .Rmd  and the .html in this folder for the filtering exercise. You can access the .html file from the OneDrive folder and view it using google chrome. 
 
-
+<br/>
+<div align="right">
+    <b><a href="#table-of-contents">^ back to TOC</a></b>
+</div>
+<br/>
 
 # Useful resources
 

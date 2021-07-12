@@ -13,20 +13,25 @@ output:
 knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
 ```
 
-This file was produced by *samtools mpileup*. Some of the VCF INFO fields are a little different. 
+# Set up
 
-First let's get a handle on our raw data.
+For this tutorial I am demonstrating some code and principles of filtering using a dataset from the McRae Lab at ECU. The file was produced by *samtools mpileup*. Some of the VCF INFO fields are a little different. 
+
+To produce the subsample file stored in `~/Bioinformatics_Workshop/vcfs/` I ran the following code on the orignal full vcf. I did this so the steps don't take for ever. 
+
 
 ```{bash}
 VCF=bluebird_master_v1.vcf
-name=${VCF%%.*}
-bcftools stats $VCF > filtering_stats/$name.stats.tab
-less -S $name.stats.tab
+VCFLIB=~/programs/vcflib/bin
+$VCFLIB/vcfrandomsample -r 0.01 bluebird_master_v1.vcf > bluebird_subset.vcf
 ```
 
-**Question 1:** How many records do we have? How many of these are SNPs? How many are multi-allelic? How many are Indels?
 
-#Filtering first round.
+You may choose to run this code on the ZF data or the bluebird data in this directory. the example code is from the original file using the whole genome, so you will need to change the sample names in the code below. 
+Make sure you copy these files into your directories to run this. 
+
+
+# Round 1
 
 GATK recommends a bunch of minimum filters [here](https://gatk.broadinstitute.org/hc/en-us/articles/360035890471-Hard-filtering-germline-short-variants), however because the SNPs weren't called in GATK we are going to only filter on the two criteria we have in the `mpileup` derived vcf file. 
 
@@ -40,9 +45,25 @@ nohup gatk --java-options "-Xmx12g" VariantFiltration \
     -filter "QUAL < 30.0" --filter-name "QUAL30" \ 
     -filter "MQ < 30.0" --filter-name "MQ30" \
     -O bluebird_filtered.qmq30.vcf.gz &
+```    
+
+
+**Question 1:** Look at the documentation above for minimum GATK filters. Can you run all of those on the bluebird dataset? What about the Zebra finch data? How would you construct the filtering statement (like above) to include more of their minimum filtering suggestions?
+
+Look at the new file at the FILTER column. Have we actually excluded those sites? 
+
+No. The next step is to remove them, and invariant sites. 
+
+```{bash}
+VCF=bluebird_filtered.qmq30.vcf.gz 
+nohup gatk --java-options "-Xmx12g" SelectVariants \
+    -V $VCF \
+    -exclude-non-variants \
+    -exclude-filtered \
+    -O bluebird_filtered_excluded.qmq30.vcf.gz &
 ```
 
-Here I have lowered MQ from the recommended 40 to 30.
+Here I have lowered MQ from the recommended 40 to 30. The second command actually removes those sites from the VCF.
 
 **Question 2:** What is the MQ value in the vcf file? What is the QUAL?
 
@@ -52,12 +73,11 @@ Now that's done let's have a look at some basic stats that we can use to look at
 
 Minimum and maximum depth filters are important because we want to have a certain number of reads that support a given genotype call. We also want to make sure that we are not sampling poorly assembled, repetitive regions of the genome in keeping genotypes that have extremely high sequencing depth. 
 
-the tool *vcftools* offers two ways to measure depth. 
+The tool *vcftools* offers two ways to measure depth. 
   --depth is the mean depth per individual. 
   --site-mean-depth is the mean depth per site across all individuals. 
-
 ```{bash}
-VCF=bluebird_filtered.qmq30.vcf.gz
+VCF=bluebird_filtered_excluded.qmq30.vcf.gz
 name=${VCF%%.*}
 vcftools --gzvcf $VCF --depth --out filtering_stats/$name
 vcftools --gzvcf $VCF --site-mean-depth --out filtering_stats/$name
@@ -91,35 +111,65 @@ vcftools --gzvcf $VCF --freq2 --out filtering_stats/$name --max-alleles 2
 ```
 
 
-```{r}
+```{r, eval=FALSE}
 library(ggplot2)
 library(ggpubr)
+library(dplyr)
 
-name="bluebird_master_v1"
-bb_raw<- read.table(file.path("filtering_stats",paste0(name,".var.tab")))
-bb_raw_depth<- read.table(paste0(name,""))
-
-
+name="bluebird_filtered_excluded"
+bb_raw_ldepth<- read.table(file.path("filtering_stats",paste0(name,".ldepth.mean")), header=TRUE)
+bb_raw_idepth<- read.table(file.path("filtering_stats",paste0(name,".idepth")), header=TRUE)
+bb_raw_lmiss<- read.table(file.path("filtering_stats",paste0(name,".lmiss")), header=TRUE)
+bb_raw_imiss<- read.table(file.path("filtering_stats",paste0(name,".imiss")), header=TRUE)
+bb_raw_frq<- read.table(file.path("filtering_stats",paste0(name,".frq")), header=TRUE,row.names=NULL)
+colnames(bb_raw_frq)<- c("CHROM","POS","N_ALLELES",  "N_CHR",  "FREQ1", "FREQ2")
+## calculates the minor allele frequency by picking the lowest value of the two columns - from https://speciationgenomics.github.io/filtering_vcfs/
+bb_raw_frq$maf <- bb_raw_frq %>% select(FREQ1, FREQ2) %>% apply(1, function(z) min(z))
+bb_raw_het<- read.table(file.path("filtering_stats",paste0(name,".het")), header=TRUE)
 ```
 
-**Question 2:** Where do you think you would put the filtering cut offs? Why?
+
+```{r, eval=FALSE}
+ldepth<- ggplot(bb_raw_ldepth, aes(MEAN_DEPTH)) + geom_density(fill="grey80", color="black") + theme_bw() + labs(x="mean depth per site")
+ldepth2<- ggplot(bb_raw_ldepth, aes(MEAN_DEPTH)) + geom_density(fill="grey80", color="black") + theme_bw() + labs(x="mean depth per site (0-80)") + xlim(0,80)
+idepth<- ggplot(bb_raw_idepth, aes(MEAN_DEPTH)) + geom_histogram(fill="grey80", color="black") + theme_bw() + labs(x="mean depth per individual")
+lmiss<- ggplot(bb_raw_lmiss, aes((F_MISS)*100)) + geom_density(fill="grey80", color="black") + theme_bw() + labs(x="% missingness per site")
+imiss<-  ggplot(bb_raw_imiss, aes((F_MISS)*100)) + geom_histogram(fill="grey80", color="black") + theme_bw() + labs(x="% missingness per individual")
+frq<- ggplot(bb_raw_frq, aes(maf)) + geom_histogram(fill="grey80", color="black") + theme_bw() + labs(x="Minor Allele Frequency")
+het<- ggplot(bb_raw_het, aes(F)) + geom_histogram(fill="grey80", color="black") + theme_bw() + labs(x="F-index")
+
+ggarrange(ggarrange(ldepth,ldepth2, nrow=2, ncol=1), idepth, lmiss,imiss, frq,het,ncol=3, nrow=2)
+```
+
+
+**Question 3:** Where do you think you would put the site filtering cut offs? Why? 
+
+**Question 4:** Are the are any individuals that look like there were sequencing problems? Are they the same individuals across the metrics?
 
 # Round 2
 
-Let's execute the filter.
+Let's execute the filter. I picked a mean depth of 5 for all sites and a genotype must have a minimum depth of 5 to remain. I picked a max mean depth of 30.
 
 ```{bash}
-
---minDP 5 
---min-meanDP #15
---max-meanDP x
---max-alleles 2
+VCF=bluebird_filtered_excluded.qmq30.vcf.gz
+name=${VCF%%.*}
+nohup vcftools --gzvcf $VCF \
+--min-meanDP 5 \
+--minDP 5 --max-meanDP 30 --remove-indv BB_WH_171 \ 
+--recode --out $name.qmq30.minDP5maxDP30 &
 ```
 
-**Question 2:** How has this changed the profile of missing data now that the the above filtering step has been conducted?
+**Question 5:** After this round of filtering, how many loci remain?
+
+**Question 6:** Describe how has this changed the profile of missing data now that the the above filtering step has been conducted?
 
 
 ```{bash}
+VCF=bluebird_filtered_excluded.qmq30.minDP5maxDP30.recode.vcf
+name=$(echo $VCF | sed 's/.recode.vcf//')
+vcftools --gzvcf $VCF --depth --out filtering_stats/$name
+vcftools --gzvcf $VCF --site-mean-depth --out filtering_stats/$name
+
 vcftools --vcf $VCF --missing-indv --out filtering_stats/$name
 vcftools --vcf $VCF --missing-site --out filtering_stats/$name
 
@@ -127,9 +177,51 @@ vcftools --vcf $VCF --het --out filtering_stats/$name
 vcftools --vcf $VCF --freq2 --out filtering_stats/$name --max-alleles 2
 ```
 
+```{r, eval=FALSE}
+
+name="bluebird_filtered_excluded.qmq30.minDP5maxDP30"
+bb_filt_ldepth<- read.table(file.path("filtering_stats",paste0(name,".ldepth.mean")), header=TRUE)
+bb_filt_idepth<- read.table(file.path("filtering_stats",paste0(name,".idepth")), header=TRUE)
+bb_filt_lmiss<- read.table(file.path("filtering_stats",paste0(name,".lmiss")), header=TRUE)
+bb_filt_imiss<- read.table(file.path("filtering_stats",paste0(name,".imiss")), header=TRUE)
+bb_filt_frq<- read.table(file.path("filtering_stats",paste0(name,".frq")), header=TRUE,row.names=NULL)
+colnames(bb_filt_frq)<- c("CHROM","POS","N_ALLELES",  "N_CHR",  "FREQ1", "FREQ2")
+## calculates the minor allele frequency by picking the lowest value of the two columns - from https://speciationgenomics.github.io/filtering_vcfs/
+bb_filt_frq$maf <- bb_filt_frq %>% select(FREQ1, FREQ2) %>% apply(1, function(z) min(z))
+bb_filt_het<- read.table(file.path("filtering_stats",paste0(name,".het")), header=TRUE)
+```
+
+
+```{r, eval=FALSE}
+ldepth<- ggplot(bb_filt_ldepth, aes(MEAN_DEPTH)) + geom_density(fill="grey80", color="black") + theme_bw() + labs(x="mean depth per site")
+idepth<- ggplot(bb_filt_idepth, aes(MEAN_DEPTH)) + geom_histogram(fill="grey80", color="black") + theme_bw() + labs(x="mean depth per individual")
+lmiss<- ggplot(bb_filt_lmiss, aes((F_MISS)*100)) + geom_density(fill="grey80", color="black") + theme_bw() + labs(x="% missingness per site")
+imiss<-  ggplot(bb_filt_imiss, aes((F_MISS)*100)) + geom_histogram(fill="grey80", color="black") + theme_bw() + labs(x="% missingness per individual")
+frq<- ggplot(bb_filt_frq, aes(maf)) + geom_histogram(fill="grey80", color="black") + theme_bw() + labs(x="Minor Allele Frequency")
+het<- ggplot(bb_filt_het, aes(F)) + geom_histogram(fill="grey80", color="black") + theme_bw() + labs(x="F-index")
+
+ggarrange(ldepth, idepth, lmiss,imiss, frq,het,ncol=3, nrow=2)
+```
+
+This is looking great. For the bluebird data I am going to pick a max-missingness of 0.85. The VCF tools documentation says 0 allows all sites to be empty, and 1 only 100% complete. Therefore -max-missing is 1-lmiss threshold. 
+
+Finally, I am going to opt to remove singletons from the dataset. This is a least conservative filtering scheme, but singletons seem to be the most consistently problematic for analysis, especially with small population sample sizes. I am setting a minor allele count threshold at 1 (--mac 1).
+
+```{bash}
+VCF=bluebird_filtered_excluded.qmq30.minDP5maxDP30.recode.vcf
+name=${VCF%%.*}
+nohup vcftools --vcf $VCF --max-missing 0.85 --mac 1 --recode --out $name.qmq30.minDP5maxDP30.lmiss85mac1 &
+```
+
+Then, the file `bluebird_filtered_excluded.qmq30.minDP5maxDP30.lmiss75mac1.recode.vcf` is ready for downstream analysis. 
+
+**Question 7:** How many sites remain after filtering?
+
+**Question 8:** Look again at the INFO and FORMAT fields in the bluebird and the zebra finch data. In the zebra finch data what other fields might you want to filter by in VCF tools? What is the vcftools command for this? *hint:* see the filtering schema of O'Leary et al (2018). 
+
 
 # References: 
-
+* Linck and Battey (2019). Minor allele frequency thresholds strongly affect population structure inference with genomic datasets. *Molecular Ecology Res*
 * O'Leary et al (2018) These aren’t the loci you’e looking for: Principles of effective SNP filtering for molecular ecologists. *Molecular Ecology* 27: 3193-3206
 * GATK Team (2021) [Hard-filtering germline short variants](https://gatk.broadinstitute.org/hc/en-us/articles/360035890471-Hard-filtering-germline-short-variants)
 * [VCFTools documentation](https://vcftools.github.io/man_latest.html)
