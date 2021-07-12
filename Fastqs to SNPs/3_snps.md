@@ -288,7 +288,7 @@ See the .Rmd  and the .html in this folder for the filtering exercise. You can a
 
 # Useful resources
 
-##GATK
+## GATK
 https://informatics.fas.harvard.edu/whole-genome-resquencing-for-population-genomics-fastq-to-vcf.html
 https://evodify.com/gatk-in-non-model-organism/
 https://gatk.broadinstitute.org/hc/en-us/articles/360035535932-Germline-short-variant-discovery-SNPs-Indels-
