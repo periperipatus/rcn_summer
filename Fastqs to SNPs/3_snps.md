@@ -37,7 +37,7 @@ cd /home/ngsclass/Bioinformatics_Workshop/zf_reads/
 FASTQ=*.fastq.gz
 for f in $FASTQ
 sample=$( echo $f | sed 's/.fastq.gz//')
-seqtk sample -s42 $f 0.1 > subs/${sample}_subs.fq
+zcat $f | head -n 400000 > subs_10k/${sample}_subs.fq
 done
 ```
 2. trimming.sh
@@ -68,7 +68,9 @@ for file1 in $READS
 ```
 
 This script was written so that each mapping command can be run simultaneously. 
+
 **Question 1:** Have a look at this script. How has this been run so that each file is run roughly contemporaneously? What are the drawbacks of running things using this approach? 
+
 **Question 2:** What does the pipe to `samtools` do?
 
 <br/>
@@ -218,16 +220,6 @@ done
 
 Despite the small size of these files this took about a day to run.
 
-Then we need to make a database of our individual vcfs, but first we need to make a file that will contain a list of names and file locations of the g.vcfs.
-
-```bash
-VCFS=tmp_gvcf/*.vcf.gz
-for v in $VCFS; do
-    filename=$(basename $v);
-    name="${filename%%.*}";
-    echo -e "$name\t$v" >> gvcfs.sample_map;
-done
-```
 
 GATK offers two ways to combine the individual GVCFs into one for genotype calling. The first/older method is `CombineGVCFs` or using `GenomicsDBImport`. I had trouble getting DBImport to work on the server, and `CombineGVCFs` is acceptable for use in small projects like this one. 
 
@@ -272,9 +264,9 @@ Please copy these to your directory for the Filtering Tutorial.
 bcftools stats <INVCF.vcf.gz> <OUTFILE>
 ```
 
-**Question 6:** Use the above command for both VCF files. How many SNPs are there? How many Indels are there? How many multi-allelic sites?
+**Question 5:** Use the above command for both VCF files. How many SNPs are there? How many Indels are there? How many multi-allelic sites?
 
-**Question 7:**  Look at both the files in the directory. What fields are different in INFO and FORMAT? What program was used to call the genotypes for the bluebird data?
+**Question 6:**  Look at both the files in the directory. What fields are different in INFO and FORMAT? What program was used to call the genotypes for the bluebird data?
 
 # Filtering
 
